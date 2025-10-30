@@ -1,33 +1,28 @@
 import cv2 as cv
-import cv2.aruco as aruco 
+import cv2.aruco as aruco
 import numpy as np
 
 
-def detect_aruco_centers(*, image) -> list:
-    """detects all arucos in the image, return list in the form [[aruco ID, [center_x, center_y]], [..., ...] ...]"""
+def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """detects aruco markers in the image, returns center of each marker and coresponding id from the aruco marker library"""
     dictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
     parameters = aruco.DetectorParameters()
     detector = aruco.ArucoDetector(dictionary, parameters)
-    corners, ids, _ = detector.detectMarkers(image)  
-    result = []
+    corners, ids, _ = detector.detectMarkers(image)
 
     if ids is None:
-        return result
+        return np.empty((0,), dtype=np.int32), np.empty((0, 2), dtype=np.float32)
 
-    for marker_corners, marker_id in zip(corners, ids.flatten()):
-        pts = marker_corners[0]         
-        center = pts.mean(axis=0)       
-        result.append([int(marker_id), center.tolist()])
-    return result
+    centers = np.array([c[0].mean(axis=0) for c in corners], dtype=np.float32)
+    ids = ids.flatten().astype(np.int32)
 
-def detect_object_center(*, image):
-    print(np.array(detect_aruco_centers(image = image)[:, 1]))
+    return ids, centers
 
-    if len(centers) != 2:
-        raise ValueError
-    
-    object_center = centers.mean(axis = 0)
 
-    return object_center
+def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
+    """detects object center from image"""
+    ids, centers = detect_aruco_centers(image=image)
+    if centers.shape[0]  != 2:
+        raise ValueError("Image contains more or less than two aruco markers or the aruco markers are occluded")
 
-  
+    return centers.mean(axis=0)
