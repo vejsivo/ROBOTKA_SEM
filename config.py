@@ -1,4 +1,4 @@
 config = {
-    "robot_type": "CRS93", 
+    "robot_type": "no_robot", 
     "task_type": "A"
 }

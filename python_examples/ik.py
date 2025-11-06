@@ -13,3 +13,5 @@ closest_solution = min(ik_sols, key=lambda q: np.linalg.norm(q - q0))
 robot.move_to_q(closest_solution)
 robot.wait_for_motion_stop()
 robot.close()
+
+np.zeros()
