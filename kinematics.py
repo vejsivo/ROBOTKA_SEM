@@ -2,7 +2,7 @@ import numpy as np
 from ctu_crs import CRS93, CRS97
 from config import config as conf
 from core.se3 import SE3
-from core.se3 import SO3
+from core.so3 import SO3
 
 
 def fk(*, q: np.ndarray, robot) -> SE3:
@@ -16,5 +16,5 @@ def fk(*, q: np.ndarray, robot) -> SE3:
     fk = robot_fk * T
     return fk
 
-def ik(*, )
+def ik(*, poss )
     

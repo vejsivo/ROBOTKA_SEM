@@ -1,4 +1,5 @@
 from config import config as conf
+from kinematics import fk#,ik
 from ctu_crs import CRS93, CRS97
 
 def initialize_robot():
@@ -27,8 +28,8 @@ def end_robot(robot):
 
 def main():
     robot = initialize_robot()
-    print(robot.fk([0.5, 0.0, 0.0, 0.0, 0.0, 0.0]))
-    #print
+    print(fk(q = [0.5, 0.0, 0.0, 0.0, 0.0, 0.0], robot = robot))
+
 
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)
