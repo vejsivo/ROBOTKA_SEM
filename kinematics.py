@@ -40,6 +40,4 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
     return ik
 
 def follow_path(*, path: list[SE3]):
-    for pos in path:
-        sols = ik()
-
+    "TODO try implementing a backward pass dynamic programming solver that minimizes total cost (differences in join positions between jumps)"
