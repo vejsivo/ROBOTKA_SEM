@@ -16,6 +16,11 @@ def fk(*, q: np.ndarray, robot) -> SE3:
     fk = robot_fk * T
     return fk
 
+def q_valid(*, q: np.ndarray) -> bool:
+    min = conf["joint_limit_min"]
+    max = conf["joint_limit_max"]
+    return np.all((q >= min) & (q <= max))
+
 def ik(*, position: SE3, robot) -> list[np.ndarray]:
     '''takes in a desired position of the end effector, return multiple possible solutions for that position 
     possibly rotated around the z axis going through the center of the hoop'''
@@ -28,6 +33,13 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
         T_effector = T * _T_se
         sols = robot.ik(T_effector.homogeneous())
         ik.extend(sols)
+
+    for i in range(len(ik) - 1, -1, -1):
+        if not q_valid(q = ik[i]):
+            del ik[i]
     return ik
 
+def follow_path(*, path: list[SE3]):
+    for pos in path:
+        sols = ik()
 
