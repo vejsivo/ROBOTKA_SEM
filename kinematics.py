@@ -86,65 +86,15 @@ import numpy as np
 from core.se3 import SE3
 from core.so3 import SO3
 
-def puzzle_path_rotating(x0=0.4, y0=-0.1, z0=0.2,
-                         r=0.05, run_chamfer=0.015, rise_chamfer=0.015,
-                         up1=0.03, up2=0.06,
-                         top_len=0.05,
-                         n_up1=4, n_chamfer=4, n_up2=7, n_arc=12, n_top=6):
-    pts = []
-
-    # 1) vertical up 30 mm
-    for s in np.linspace(0.0, up1, n_up1, endpoint=True):
-        pts.append(np.array([x0, y0, z0 + s]))
-
-    # 2) 45° chamfer: +x,+z by 15 mm each
-    for t in np.linspace(0.0, 1.0, n_chamfer, endpoint=True):
-        pts.append(np.array([x0 + t*run_chamfer, y0, z0 + up1 + t*rise_chamfer]))
-
-    # 3) vertical up additional 60 mm
-    S = np.array([x0 + run_chamfer, y0, z0 + up1 + rise_chamfer])
-    for s in np.linspace(0.0, up2, n_up2, endpoint=True):
-        pts.append(S + np.array([0.0, 0.0, s]))
-
-    # 4) quarter-circle of radius r bending toward +x (tangent +z -> +x)
-    S_end = pts[-1]
-    Cx, Cz = S_end[0] + r, S_end[2]
-    for a in np.linspace(0.0, np.pi/2, n_arc, endpoint=True):
-        x = Cx - r * np.cos(a)
-        z = Cz + r * np.sin(a)
-        pts.append(np.array([x, y0, z]))
-
-    # 5) straight top along +x for 50 mm
-    T_start = pts[-1]
-    for s in np.linspace(0.0, top_len, n_top, endpoint=True):
-        pts.append(T_start + np.array([s, 0.0, 0.0]))
-
-    # remove duplicates
-    out = []
-    for p in pts:
-        if not out or np.linalg.norm(p - out[-1]) > 1e-9:
-            out.append(p)
-    pts = out
-
-    # build SE3 list with rotation following tangent
-    poses = []
-    up = np.array([0, 1, 0])  # fixed "side" or "up" direction (world Y)
-    for i in range(len(pts)):
-        if i < len(pts) - 1:
-            tangent = pts[i + 1] - pts[i]
-        else:
-            tangent = pts[i] - pts[i - 1]
-        tangent /= np.linalg.norm(tangent)
-
-        z_axis = tangent                # direction of motion
-        x_axis = np.cross(up, z_axis)   # lateral axis
-        x_axis /= np.linalg.norm(x_axis)
-        y_axis = np.cross(z_axis, x_axis)
-        R = np.column_stack((x_axis, y_axis, z_axis))
-        poses.append(SE3(translation=pts[i], rotation=SO3(R)))
-
-    return poses
-
+def random_rot():
+    """
+    Generate a random SO3 rotation object (proper orthogonal matrix with det = +1).
+    """
+    A = np.random.randn(3, 3)
+    Q, _ = np.linalg.qr(A)
+    if np.linalg.det(Q) < 0:
+        Q[:, 0] *= -1
+    return SO3
 
 
 

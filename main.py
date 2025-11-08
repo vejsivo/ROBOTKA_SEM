@@ -1,5 +1,5 @@
 from config import config as conf
-from kinematics import fk, ik, generate_flat_poses, follow_path, puzzle_path_test
+from kinematics import fk, ik, generate_flat_poses, follow_path, random_rot
 
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
@@ -33,12 +33,20 @@ def end_robot(robot):
 
 def main():
     robot = initialize_robot()
-    
-    poses = puzzle_path_test()
-    
-    qs = follow_path(robot=robot, path=poses)
-    for q in qs:
+    poses = []
+    for i in range(20):
+        poses.append(SE3(np.array([0.4, -0.1, 0.2]), random_rot()))
+
+    path = follow_path(poses)
+    for q in path:
         robot.move_to_q(q)
+        time.sleep(1)
+        
+
+
+
+    
+    
     
     
         
