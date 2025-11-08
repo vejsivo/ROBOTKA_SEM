@@ -6,7 +6,7 @@ from core.so3 import SO3
 
 
 #robot end effector to stick transformation, will have to be set according to the robot type but i believe this is the correct transform
-_T_es = SE3(translation=np.array([0.125, 0.0, 0.0]), rotation=SO3())
+_T_es = SE3(translation=np.array([-0.125, 0.0, 0.0]), rotation=SO3())
 _T_se = _T_es.inverse()    
 
 def fk(*, q: np.ndarray, robot) -> SE3:

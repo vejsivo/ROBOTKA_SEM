@@ -48,12 +48,12 @@ def main():
 
     pos = SE3(trans, rot)
 
-    robot.move_to_q(q)
-    time.sleep(100)
-        
-        
-
-
+    sols = ik(position=pos, robot=robot)
+    for sol in sols:
+        robot.move_to_q(sol)
+        time.sleep(0.5)
+    
+                
 
 
     
