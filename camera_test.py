@@ -1,5 +1,6 @@
 from config import config as conf
 from kinematics import fk, ik, generate_flat_poses
+from perception import find_hoop_homography
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
 from core.so3 import SO3
@@ -60,11 +61,21 @@ def main():
     height=0.15
     )
 
-    for pose in poses:
+    images = []
+    for pose in poses: #poses is array of se3
         sols = ik(position=pose, robot=robot)
         robot.move_to_q(sols[0])
+        robot.wait_for_motion_stop()
 
-    
+        img = robot.grab_image()
+        images.append(img)
+        
+
+    print(f"Captured {len(images)} images.")   
+    H = find_hoop_homography(images, poses)
+    print("Homography matrix:")
+    print(H)
+
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)
 

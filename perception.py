@@ -1,6 +1,8 @@
 import cv as cv
 import cv.aruco as aruco
 import numpy as np
+from core.se3 import SE3
+from core.so3 import SO3
 
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -30,7 +32,8 @@ def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
 
 
 #from toolbox
-def find_hoop_homography(images: ArrayLike, hoop_positions: List[dict]) -> np.ndarray:
+#images array, hoop_positions array of SE3
+def find_hoop_homography(images, hoop_positions) -> np.ndarray:
     """
     Find homography based on images containing the hoop and the hoop positions from array
     """
@@ -42,8 +45,9 @@ def find_hoop_homography(images: ArrayLike, hoop_positions: List[dict]) -> np.nd
     circle = [find_circle(img, min_radius=50, max_radius=200) for img in processed_images] 
     
     #Fix types
+    #hoop position is type SE3
     circle_pos = np.array([[c[0], c[1]] for c in circle]) #image points (xc,yc)
-    hoop_pos = np.array([x["translation_vector"] for x in hoop_positions])[:, :2] #hoop positions in plane P (x,y)
+    hoop_pos = np.array([x.translation[:2] for x in hoop_positions]) #hoop positions in plane P (x,y)
     H, mask = cv.findHomography(circle_pos, hoop_pos, method=cv.RANSAC)
 
     return H #homography
