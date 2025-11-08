@@ -1,5 +1,6 @@
 from config import config as conf
-from kinematics import fk, ik, generate_flat_poses
+from kinematics import fk, ik, generate_flat_poses, follow_path
+
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
 from core.so3 import SO3
@@ -33,38 +34,24 @@ def end_robot(robot):
 def main():
     robot = initialize_robot()
     
-    rot = SO3(np.diag([-1, 1, -1]))
-    trans = np.array([0.45, -0.1, 0.15])
+    R = np.diag([1.0, 1.0, -1.0])
+    rot = SO3(R)
 
-    q = np.array([0.04164258, -1.38375224, -0.61048516, 3.14159265, 1.14735526, -1.52915375])
-    normal_fk = SE3.from_homogeneous(robot.fk(q))
-    ee_fk = fk(q = q, robot=robot)
+    # choose 5 points along x = y inside the bounds
+    n = 5
+    x_vals = np.linspace(0.4, 0.7, n)
+    y_vals = np.linspace(-0.15, 0.15, n)
+    z = 0.3
 
-    print(normal_fk,"normal")
-    print()
-    print(ee_fk, "ee_fk")
-    print()
+    poses = [SE3(translation=np.array([x, y, z]), rotation=rot)
+            for x, y in zip(x_vals, y_vals)]
     
-
-    pos = SE3(trans, rot)
-
-                
-    poses = generate_flat_poses(
-    robot=robot,
-    xmax=0.7,
-    xmin=0.4,
-    ymax=0.15,
-    ymin=-0.15,
-    ysteps=3,
-    xsteps=4,
-    height=0.15
-    )
-
-    for pose in poses:
-        sols = ik(position=pose, robot=robot)
-        robot.move_to_q(sols[0])
-
+    qs = follow_path(robot=robot, path=poses)
+    for q in qs:
+        robot.move_to_q(q)
     
+    
+        
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)
 

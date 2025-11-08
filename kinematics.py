@@ -46,9 +46,52 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
     ik_sorted = ik[order]
     return ik_sorted
 
-def follow_path(*, path: list[SE3]):
-    "TODO try implementing a backward pass dynamic programming solver that minimizes total cost (differences in join positions between jumps)"
-    return 0
+def follow_path(*, path: list[SE3], robot):
+    #construct the sol list
+    grid =[]
+    for position in path:
+        sols = ik(position=position, robot=robot)
+        grid.append(sols)
+
+    #construct the cost list
+    costs = [[np.inf for _ in inner] for inner in grid]
+    for i in range(len(costs[-1])):
+        costs[-1][i] = 1
+
+    #construct the actions list
+    actions = [[None for _ in inner] for inner in grid]
+
+    for i in range(len(grid) - 2, -1, -1):
+        sols = grid[i]
+        for j in range(len(sols)):
+            state = sols[j]
+            best_cost = np.inf
+            best_action = None
+            for k in range(len(grid[i + 1])):
+                next_state = grid[i + 1][k]
+                static_cost = costs[i+1][k]
+                travel_cost = np.linalg.norm(next_state - state)
+                total = static_cost + travel_cost
+                if total < best_cost:
+                    best_cost = total
+                    best_action = k
+            costs[i][j] = best_cost
+            actions[i][j] = best_action
+    
+    path_idx = [np.argmin(costs[0])]
+    for i in range(len(actions) - 1):
+        next_idx = actions[i][path_idx[-1]]
+        path_idx.append(next_idx)
+
+    optimal_path = [grid[i][path_idx[i]] for i in range(len(grid))]
+    return optimal_path
+
+
+
+
+
+
+
 
 def generate_flat_poses(*, robot, xmax:float, xmin: float, ymax: float, ymin: float, ysteps: float, xsteps:float, height: float) -> SE3:
     x_vals = np.linspace(xmin, xmax, xsteps)
