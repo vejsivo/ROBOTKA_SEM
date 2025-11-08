@@ -1,6 +1,9 @@
 from config import config as conf
-from kinematics import fk#,ik
+from kinematics import fk, ik
 from ctu_crs import CRS93, CRS97
+from core.se3 import SE3
+from core.so3 import SO3
+import numpy as np
 
 def initialize_robot():
     robot_type = conf.get("robot_type")
@@ -12,7 +15,7 @@ def initialize_robot():
         robot = CRS93()
         robot.initialize()
     elif robot_type == "no_robot":
-        robot = CRS93(tty_dev=None)
+        robot = CRS97(tty_dev=None)
     else:
         raise ValueError(f"Unknown robot type: {robot_type}")
 
@@ -28,9 +31,17 @@ def end_robot(robot):
 
 def main():
     robot = initialize_robot()
-    print(fk(q = [0.5, 0.0, 0.0, 0.0, 0.0, 0.0], robot = robot))
+    
+    rot = SO3(np.diag([-1, 1, -1]))
+    trans = np.array([0.6, 0.15, 0.15])
 
+    pos = SE3(trans, rot)
 
+    sols = ik(position=pos, robot=robot)
+    for sol in sols:
+        robot.move_to_q(sol)
+
+    
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)
 
