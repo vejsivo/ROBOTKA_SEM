@@ -49,3 +49,18 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
 def follow_path(*, path: list[SE3]):
     "TODO try implementing a backward pass dynamic programming solver that minimizes total cost (differences in join positions between jumps)"
     return 0
+
+def generate_flat_poses(*, robot, xmax:float, xmin: float, ymax: float, ymin: float, ysteps: float, xsteps:float, height: float) -> SE3:
+    x_vals = np.linspace(xmin, xmax, xsteps)
+    y_vals = np.linspace(ymin, ymax, ysteps)
+    z = height
+
+    R = np.diag([-1.0, 1.0, -1.0])
+    rot = SO3(R)
+
+    poses = []
+    for x in x_vals:
+        for y in y_vals:
+            t = np.array([x, y, z])
+            poses.append(SE3(translation=t, rotation=rot))
+    return poses

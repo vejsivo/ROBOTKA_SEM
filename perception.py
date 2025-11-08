@@ -1,6 +1,8 @@
 import cv2 as cv
 import cv2.aruco as aruco
 import numpy as np
+from core.se3 import SE3
+from core.so3 import SO3
 
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -26,3 +28,7 @@ def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
         raise ValueError("Image contains more or less than two aruco markers or the aruco markers are occluded")
 
     return centers.mean(axis=0)
+
+
+
+
