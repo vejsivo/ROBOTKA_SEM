@@ -1,8 +1,6 @@
-import cv2 as cv
-import cv2.aruco as aruco
+import cv as cv
+import cv.aruco as aruco
 import numpy as np
-from core.se3 import SE3
-from core.so3 import SO3
 
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -31,4 +29,61 @@ def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
 
 
 
+#from toolbox
+def find_hoop_homography(images: ArrayLike, hoop_positions: List[dict]) -> np.ndarray:
+    """
+    Find homography based on images containing the hoop and the hoop positions from array
+    """
+    
+    images = np.asarray(images) #convert to numpy array (1200, 1920, 3) * N
 
+    processed_images = images_processing(images, thresh_val=120, blur_ksize=(9,9))
+
+    circle = [find_circle(img, min_radius=50, max_radius=200) for img in processed_images] 
+    
+    #Fix types
+    circle_pos = np.array([[c[0], c[1]] for c in circle]) #image points (xc,yc)
+    hoop_pos = np.array([x["translation_vector"] for x in hoop_positions])[:, :2] #hoop positions in plane P (x,y)
+    H, mask = cv.findHomography(circle_pos, hoop_pos, method=cv.RANSAC)
+
+    return H #homography
+
+
+def images_processing(images,
+                    thresh_val=100,
+                    blur_ksize=(9, 9)
+):
+    """
+    Threshold and blur úrocessing for N images
+    images: np.ndarray with shape (N, 1200, 1920, 3)
+    Returns: list of image arrays (or None)
+    """
+    processed_images = []
+
+    for i, img in enumerate(images):
+        # Convert to grayscale
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+        # Apply simple binary threshold
+        _, th = cv.threshold(gray, thresh_val, 255, cv.THRESH_BINARY)
+
+        # Optionally blur to reduce noise
+        blur = cv.GaussianBlur(th, blur_ksize, 2)
+        processed_images.append(blur)
+
+    return processed_images
+
+def find_circle(image,min_radius, max_radius):
+    """
+    Find circle in the image using HoughCircles.
+    Returns: one circle(x, y, radius) or None if not found
+    """
+    # Use HoughCircles to detect circles
+    circles = cv.HoughCircles(image, cv.HOUGH_GRADIENT, dp=1, minDist=100,
+                               param1=100, param2=30, minRadius=min_radius, maxRadius=max_radius)
+    if circles is not None:
+        circles = np.uint16(np.around(circles)) 
+        # Return the first detected circle !! 
+        return circles[0][0]  # (x, y, radius)
+    else:
+        return None
