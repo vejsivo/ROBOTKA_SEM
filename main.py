@@ -1,5 +1,5 @@
 from config import config as conf
-from kinematics import fk, ik, generate_flat_poses, follow_path
+from kinematics import fk, ik, generate_flat_poses, follow_path, puzzle_path_test
 
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
@@ -34,17 +34,7 @@ def end_robot(robot):
 def main():
     robot = initialize_robot()
     
-    R = np.diag([1.0, 1.0, -1.0])
-    rot = SO3(R)
-
-    # choose 5 points along x = y inside the bounds
-    n = 5
-    x_vals = np.linspace(0.4, 0.7, n)
-    y_vals = np.linspace(-0.15, 0.15, n)
-    z = 0.3
-
-    poses = [SE3(translation=np.array([x, y, z]), rotation=rot)
-            for x, y in zip(x_vals, y_vals)]
+    poses = puzzle_path_test()
     
     qs = follow_path(robot=robot, path=poses)
     for q in qs:

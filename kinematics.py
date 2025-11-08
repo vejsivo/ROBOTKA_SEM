@@ -37,20 +37,16 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
     for i in range(len(ik) - 1, -1, -1):
         if not q_valid(q = ik[i]):
             del ik[i]
-
-    ik = np.asarray(ik)
-    ref = ik[0]
-    dist = np.linalg.norm(ik - ref, axis=1)
-    order = np.argsort(dist)
-
-    ik_sorted = ik[order]
-    return ik_sorted
+    if len(ik) == 0:
+        return None
+    return ik
 
 def follow_path(*, path: list[SE3], robot):
     #construct the sol list
     grid =[]
     for position in path:
         sols = ik(position=position, robot=robot)
+        assert sols is not None
         grid.append(sols)
 
     #construct the cost list
@@ -86,7 +82,48 @@ def follow_path(*, path: list[SE3], robot):
     optimal_path = [grid[i][path_idx[i]] for i in range(len(grid))]
     return optimal_path
 
+def puzzle_path_test(x0=0.4, y0=-0.1, z0=0.2,
+                           r=0.05, run_chamfer=0.015, rise_chamfer=0.015,
+                           up1=0.03, up2=0.06,
+                           top_len=0.05,
+                           n_up1=4, n_chamfer=4, n_up2=7, n_arc=12, n_top=6):
+    R = SO3(np.diag([-1.0, 1.0, -1.0]))  # flat orientation, fixed for all poses
+    pts = []
 
+    # 1) vertical up 30 mm
+    for s in np.linspace(0.0, up1, n_up1, endpoint=True):
+        pts.append(np.array([x0, y0, z0 + s]))
+
+    # 2) 45° chamfer: +x,+z by 15 mm each
+    for t in np.linspace(0.0, 1.0, n_chamfer, endpoint=True):
+        pts.append(np.array([x0 + t*run_chamfer, y0, z0 + up1 + t*rise_chamfer]))
+
+    # 3) vertical up additional 60 mm
+    S = np.array([x0 + run_chamfer, y0, z0 + up1 + rise_chamfer])
+    for s in np.linspace(0.0, up2, n_up2, endpoint=True):
+        pts.append(S + np.array([0.0, 0.0, s]))
+
+    # 4) quarter-circle of radius r bending toward +x (tangent +z -> +x)
+    # center chosen so start at S_end, end at +x direction:
+    S_end = pts[-1]
+    Cx, Cz = S_end[0] + r, S_end[2]
+    for a in np.linspace(0.0, np.pi/2, n_arc, endpoint=True):
+        x = Cx - r*np.cos(a) + 0.0      # = S_end.x + r(1 - cos a)
+        z = Cz + r*np.sin(a)
+        pts.append(np.array([x, y0, z]))
+
+    # 5) straight top along +x for 50 mm
+    T_start = pts[-1]
+    for s in np.linspace(0.0, top_len, n_top, endpoint=True):
+        pts.append(T_start + np.array([s, 0.0, 0.0]))
+
+    # remove accidental duplicates
+    out = []
+    for p in pts:
+        if not out or np.linalg.norm(p - out[-1]) > 1e-9:
+            out.append(p)
+
+    return [SE3(translation=p, rotation=R) for p in out]
 
 
 
