@@ -34,7 +34,7 @@ def main():
     robot = initialize_robot()
     
     rot = SO3(np.diag([-1, 1, -1]))
-    trans = np.array([0.6, 0.15, 0.15])
+    trans = np.array([0.45, -0.1, 0.15])
 
     q = np.array([0.04164258, -1.38375224, -0.61048516, 3.14159265, 1.14735526, -1.52915375])
     normal_fk = SE3.from_homogeneous(robot.fk(q))
