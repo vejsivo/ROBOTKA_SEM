@@ -37,7 +37,15 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
     for i in range(len(ik) - 1, -1, -1):
         if not q_valid(q = ik[i]):
             del ik[i]
-    return ik
+
+    ik = np.asarray(ik)
+    ref = ik[0]
+    dist = np.linalg.norm(ik - ref, axis=1)
+    order = np.argsort(dist)
+
+    ik_sorted = ik[order]
+    return ik_sorted
 
 def follow_path(*, path: list[SE3]):
     "TODO try implementing a backward pass dynamic programming solver that minimizes total cost (differences in join positions between jumps)"
+    return 0
