@@ -1,6 +1,10 @@
-import cv as cv
-import cv.aruco as aruco
+import cv2 as cv
+import cv2.aruco as aruco
 import numpy as np
+from core.se3 import SE3
+from core.so3 import SO3
+
+from kinematics import fk, ik, generate_flat_poses, follow_path
 
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -30,7 +34,8 @@ def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
 
 
 #from toolbox
-def find_hoop_homography(images: ArrayLike, hoop_positions: List[dict]) -> np.ndarray:
+#images array, hoop_positions array of SE3
+def find_hoop_homography(images, hoop_positions) -> np.ndarray:
     """
     Find homography based on images containing the hoop and the hoop positions from array
     """
@@ -42,8 +47,9 @@ def find_hoop_homography(images: ArrayLike, hoop_positions: List[dict]) -> np.nd
     circle = [find_circle(img, min_radius=50, max_radius=200) for img in processed_images] 
     
     #Fix types
+    #hoop position is type SE3
     circle_pos = np.array([[c[0], c[1]] for c in circle]) #image points (xc,yc)
-    hoop_pos = np.array([x["translation_vector"] for x in hoop_positions])[:, :2] #hoop positions in plane P (x,y)
+    hoop_pos = np.array([x.translation[:2] for x in hoop_positions]) #hoop positions in plane P (x,y)
     H, mask = cv.findHomography(circle_pos, hoop_pos, method=cv.RANSAC)
 
     return H #homography
@@ -87,3 +93,38 @@ def find_circle(image,min_radius, max_radius):
         return circles[0][0]  # (x, y, radius)
     else:
         return None
+
+def find_homography_in_height(robot, height):
+    """
+    Find homography matrix for given height using robot to capture images
+    """
+    poses = generate_flat_poses(
+        robot=robot,
+        xmax=0.5,
+        xmin=0.4,
+        ymax=0.15,
+        ymin=-0.15,
+        ysteps=4,
+        xsteps=4,
+        height=height   
+    )
+
+    q_array = follow_path(robot = robot, path = poses)
+    images = []
+    for q in q_array:
+        robot.move_to_q(q)
+        robot.wait_for_motion_stop()
+        img = robot.grab_image()
+        images.append(img)
+        
+    H = find_hoop_homography(images, poses)
+    return H
+
+def apply_homography(H: np.ndarray, pt_uv: np.ndarray) -> np.ndarray:
+    """pt_uv: [u,v] pixel (same image used to estimate H)
+       returns: [X,Y] in the plane coordinates used for hoop_pos"""
+    u, v = float(pt_uv[0]), float(pt_uv[1])
+    ph = H @ np.array([u, v, 1.0])
+    X = ph[0] / ph[2]
+    Y = ph[1] / ph[2]
+    return np.array([X, Y], dtype=float)
