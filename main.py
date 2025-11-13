@@ -1,11 +1,12 @@
 from config import config as conf
-from kinematics import fk, ik, generate_flat_poses, follow_path
+from kinematics import fk, ik, generate_flat_poses, follow_path, offset_path
 
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
 from core.so3 import SO3
 import numpy as np
 import time
+from puzzle_paths.puzzle_A import path_A
 
 def initialize_robot():
     robot_type = conf.get("robot_type")
@@ -34,21 +35,19 @@ def end_robot(robot):
 def main():
     robot = initialize_robot()
     
-    R = np.diag([1.0, 1.0, -1.0])
+    R = np.diag([1.0, 1.0, 1.0])
     rot = SO3(R)
 
-    # choose 5 points along x = y inside the bounds
-    n = 5
-    x_vals = np.linspace(0.4, 0.7, n)
-    y_vals = np.linspace(-0.15, 0.15, n)
-    z = 0.3
+    trans = np.array([0.5, 0, 0.2])
 
-    poses = [SE3(translation=np.array([x, y, z]), rotation=rot)
-            for x, y in zip(x_vals, y_vals)]
+    
+    poses = offset_path(path=path_A, offset=SE3(translation=trans, rotation=rot))
     
     qs = follow_path(robot=robot, path=poses)
     for q in qs:
         robot.move_to_q(q)
+
+
     
     
         
