@@ -1,10 +1,10 @@
-import cv as cv
-import cv.aruco as aruco
+import cv2 as cv
+import cv2.aruco as aruco
 import numpy as np
 from core.se3 import SE3
 from core.so3 import SO3
 
-from kinematics import fk, ik, generate_flat_poses
+from kinematics import fk, ik, generate_flat_poses, follow_path
 
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -100,20 +100,20 @@ def find_homography_in_height(robot, height):
     """
     poses = generate_flat_poses(
         robot=robot,
-        xmax=0.7,
+        xmax=0.5,
         xmin=0.4,
         ymax=0.15,
         ymin=-0.15,
-        ysteps=3,
+        ysteps=4,
         xsteps=4,
-        height=height
+        height=height   
     )
-    images = []
-    for pose in poses: #poses is array of se3
-        sols = ik(position=pose, robot=robot)
-        robot.move_to_q(sols[0])
-        robot.wait_for_motion_stop()
 
+    q_array = follow_path(robot = robot, path = poses)
+    images = []
+    for q in q_array:
+        robot.move_to_q(q)
+        robot.wait_for_motion_stop()
         img = robot.grab_image()
         images.append(img)
         

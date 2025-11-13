@@ -12,16 +12,15 @@ def initialize_robot():
 
     if robot_type == "CRS97":
         robot = CRS97()
-        robot.initialize()
+        robot.initialize(home=False)
     elif robot_type == "CRS93":
         robot = CRS93()
-        robot.initialize()
+        robot.initialize(home=False)
     elif robot_type == "no_robot":
         robot = CRS97(tty_dev=None)
     else:
         raise ValueError(f"Unknown robot type: {robot_type}")
 
-    
     return robot
 
 
@@ -44,19 +43,23 @@ def main():
     pos = SE3(trans, rot)
     
     #HOMOGRAPHY TEST
-    z = 0.15
-    H = find_homography_in_height(robot=robot, target_height=z)
+    z = 0.04
+    H = find_homography_in_height(robot=robot, height=z)
     print("Homography matrix:")
     print(H)
 
     #test zpracovani homografie
     aruco_image = robot.grab_image()
     obj_px = detect_object_center(image=aruco_image)          # [u,v]
+    print(obj_px)
     XY_plane = apply_homography(H, obj_px)             # [X,Y] on the plane
+
 
     #move robot to the position
     pos = np.array([XY_plane[0], XY_plane[1], z])
-    T_obj = SE3(pos, SO3())  
+    T_obj = SE3(pos, rot)  
+    print(T_obj)
+    print(T_obj.translation)
 
     sols = ik(position=T_obj, robot=robot)
     robot.move_to_q(sols[0])
