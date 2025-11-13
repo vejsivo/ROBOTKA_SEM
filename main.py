@@ -7,6 +7,7 @@ from core.so3 import SO3
 import numpy as np
 import time
 from puzzle_paths.puzzle_A import path_A
+from perception import detect_object_location
 
 def initialize_robot():
     robot_type = conf.get("robot_type")
@@ -35,13 +36,15 @@ def end_robot(robot):
 def main():
     robot = initialize_robot()
     
-    R = np.diag([1.0, 1.0, 1.0])
-    rot = SO3(R)
 
-    trans = np.array([0.5, 0, 0.2])
+    H = conf.get("homo004")
 
-    
-    poses = offset_path(path=path_A, offset=SE3(translation=trans, rotation=rot))
+    image = robot.grab_image()
+    object_loc = detect_object_location(image=image, H=H) 
+    poses = offset_path(path=path_A, offset=SE3(object_loc))
+
+    for pose in poses:
+        print(pose)
     
     qs = follow_path(robot=robot, path=poses)
     for q in qs:

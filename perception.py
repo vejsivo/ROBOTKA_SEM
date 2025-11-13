@@ -22,6 +22,32 @@ def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     return ids, centers
 
+def detect_aruco_corners(*, image: np.ndarray):
+    dictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
+    parameters = aruco.DetectorParameters()
+    detector = aruco.ArucoDetector(dictionary, parameters)
+    corners, ids, _ = detector.detectMarkers(image)
+    return corners, ids
+
+
+def calculate_aruco_location(*, corners: np.ndarray) -> SE3:
+    center = corners.mean(axis=0)
+    s = np.array([corners[2], corners[3]]).mean(axis=0)
+    direction = s - center
+    angle = np.arctan2(direction[1], direction[0])
+
+    Rz = np.array([
+        [np.cos(angle), -np.sin(angle), 0],
+        [np.sin(angle),  np.cos(angle), 0],
+        [0,              0,             1]
+    ])
+    rotation = SO3(Rz)
+
+    translation = np.array([center[0], center[1], 0.04])
+    pose = SE3(translation=translation, rotation=rotation)
+
+    return pose
+
 
 def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
     """detects object center from image"""
@@ -30,6 +56,39 @@ def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
         raise ValueError("Image contains more or less than two aruco markers or the aruco markers are occluded")
 
     return centers.mean(axis=0)
+
+def detect_object_location(*, image: np.ndarray, H: np.ndarray) -> SE3 | None:
+    corners, ids = detect_aruco_corners(image=image)
+    if ids is None or len(ids) == 0:
+        return None
+
+    marker_id = int(ids[0])
+    if marker_id == 1:
+        offset = np.array([0.04, 0.03, 0.0])
+    elif marker_id == 2:
+        offset = np.array([-0.04, -0.03, 0.0])
+    else:
+        offset = np.zeros(3)
+
+    # Transform marker corners from image → plane coordinates
+    pts = corners[0][0]                        # (4, 2)
+    plane_pts = np.array([apply_homography(H, pt) for pt in pts])
+
+    # SE3 pose of ArUco marker in world coordinates
+    aruco_coords = calculate_aruco_location(corners=plane_pts)
+
+    # SE3 transform from marker → object
+    offset_pose = SE3(translation=offset, rotation=SO3(np.diag([1, 1, 1])))
+
+    # Compose: world ← marker ← object
+    object_pose_world = aruco_coords * offset_pose
+
+    return object_pose_world
+
+
+
+
+        
 
 
 
@@ -128,3 +187,15 @@ def apply_homography(H: np.ndarray, pt_uv: np.ndarray) -> np.ndarray:
     X = ph[0] / ph[2]
     Y = ph[1] / ph[2]
     return np.array([X, Y], dtype=float)
+
+def apply_homography_inv(H: np.ndarray, pt_xy: np.ndarray) -> np.ndarray:
+    """pt_xy: [X, Y] in plane coordinates
+       returns: [u, v] pixel coordinates in the image"""
+    X, Y = float(pt_xy[0]), float(pt_xy[1])
+    Hinv = np.linalg.inv(H)
+    ph = Hinv @ np.array([X, Y, 1.0])
+    u = ph[0] / ph[2]
+    v = ph[1] / ph[2]
+    return np.array([u, v], dtype=float)
+
+
