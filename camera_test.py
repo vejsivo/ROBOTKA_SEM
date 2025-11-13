@@ -1,6 +1,6 @@
 from config import config as conf
 from kinematics import fk, ik, generate_flat_poses
-from perception import find_hoop_homography
+from perception import apply_homography, find_homography_in_height,detect_object_center
 from ctu_crs import CRS93, CRS97
 from core.se3 import SE3
 from core.so3 import SO3
@@ -41,40 +41,25 @@ def main():
     normal_fk = SE3.from_homogeneous(robot.fk(q))
     ee_fk = fk(q = q, robot=robot)
 
-    print(normal_fk,"normal")
-    print()
-    print(ee_fk, "ee_fk")
-    print()
-    
-
     pos = SE3(trans, rot)
-
-                
-    poses = generate_flat_poses(
-    robot=robot,
-    xmax=0.7,
-    xmin=0.4,
-    ymax=0.15,
-    ymin=-0.15,
-    ysteps=3,
-    xsteps=4,
-    height=0.15
-    )
-
-    images = []
-    for pose in poses: #poses is array of se3
-        sols = ik(position=pose, robot=robot)
-        robot.move_to_q(sols[0])
-        robot.wait_for_motion_stop()
-
-        img = robot.grab_image()
-        images.append(img)
-        
-
-    print(f"Captured {len(images)} images.")   
-    H = find_hoop_homography(images, poses)
+    
+    #HOMOGRAPHY TEST
+    z = 0.15
+    H = find_homography_in_height(robot=robot, target_height=z)
     print("Homography matrix:")
     print(H)
+
+    #test zpracovani homografie
+    aruco_image = robot.grab_image()
+    obj_px = detect_object_center(image=aruco_image)          # [u,v]
+    XY_plane = apply_homography(H, obj_px)             # [X,Y] on the plane
+
+    #move robot to the position
+    pos = np.array([XY_plane[0], XY_plane[1], z])
+    T_obj = SE3(pos, SO3())  
+
+    sols = ik(position=T_obj, robot=robot)
+    robot.move_to_q(sols[0])
 
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)

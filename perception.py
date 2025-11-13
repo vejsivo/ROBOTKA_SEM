@@ -4,6 +4,8 @@ import numpy as np
 from core.se3 import SE3
 from core.so3 import SO3
 
+from kinematics import fk, ik, generate_flat_poses
+
 
 def detect_aruco_centers(*, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """detects aruco markers in the image, returns center of each marker and coresponding id from the aruco marker library"""
@@ -91,3 +93,38 @@ def find_circle(image,min_radius, max_radius):
         return circles[0][0]  # (x, y, radius)
     else:
         return None
+
+def find_homography_in_height(robot, height):
+    """
+    Find homography matrix for given height using robot to capture images
+    """
+    poses = generate_flat_poses(
+        robot=robot,
+        xmax=0.7,
+        xmin=0.4,
+        ymax=0.15,
+        ymin=-0.15,
+        ysteps=3,
+        xsteps=4,
+        height=height
+    )
+    images = []
+    for pose in poses: #poses is array of se3
+        sols = ik(position=pose, robot=robot)
+        robot.move_to_q(sols[0])
+        robot.wait_for_motion_stop()
+
+        img = robot.grab_image()
+        images.append(img)
+        
+    H = find_hoop_homography(images, poses)
+    return H
+
+def apply_homography(H: np.ndarray, pt_uv: np.ndarray) -> np.ndarray:
+    """pt_uv: [u,v] pixel (same image used to estimate H)
+       returns: [X,Y] in the plane coordinates used for hoop_pos"""
+    u, v = float(pt_uv[0]), float(pt_uv[1])
+    ph = H @ np.array([u, v, 1.0])
+    X = ph[0] / ph[2]
+    Y = ph[1] / ph[2]
+    return np.array([X, Y], dtype=float)
