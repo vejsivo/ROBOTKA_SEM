@@ -2,10 +2,15 @@ from core.so3 import SO3
 from core.se3 import SE3
 import numpy as np
 
-R_vertical = SO3.exp(np.array([-np.pi/2, 0.0, 0.0]))
+R_vertical = SO3.exp(np.array([-1.636246173589793, 0.0, 0.0]))
 R_fixed = SO3(np.eye(3))
 
 path_D = [
+    SE3(translation=np.array([0.000, 0.12, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.11, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.1, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.095, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.09, 0.155]), rotation=R_vertical),
     SE3(translation=np.array([0.000, 0.085, 0.155]), rotation=R_vertical), #start, hoop is perpendicular to table till y = 35
     SE3(translation=np.array([0.000, 0.082, 0.155]), rotation=R_vertical),
     SE3(translation=np.array([0.000, 0.079, 0.155]), rotation=R_vertical),
@@ -88,7 +93,7 @@ path_D = [
     SE3(translation=np.array([0.000,  0.000, 0.028]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
 
     SE3(translation=np.array([0.000, -0.001, 0.031]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
-    SE3(translation=np.array([0.000, -0.004, 0.034]),    rotation=SO3.exp[np.array([-0.196349543589793, 0.0, 0.0]))),
+    SE3(translation=np.array([0.000, -0.004, 0.034]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
     SE3(translation=np.array([0.000, -0.007, 0.037]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
     SE3(translation=np.array([0.000, -0.010, 0.040]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
     SE3(translation=np.array([0.000, -0.013, 0.043]),    rotation=SO3.exp(np.array([-0.196349543589793, 0.0, 0.0]))),
@@ -160,5 +165,10 @@ path_D = [
     SE3(translation=np.array([0.000, 0.079, 0.155]), rotation=R_vertical),
     SE3(translation=np.array([0.000, 0.082, 0.155]), rotation=R_vertical),
     SE3(translation=np.array([0.000, 0.085, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.09, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.095, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.1, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.11, 0.155]), rotation=R_vertical),
+    SE3(translation=np.array([0.000, 0.12, 0.155]), rotation=R_vertical)
 
 ]

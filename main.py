@@ -18,7 +18,7 @@ def initialize_robot():
 
     if robot_type == "CRS97":
         robot = CRS97()
-        robot.initialize(home = False)
+        robot.initialize(home = True)
     elif robot_type == "CRS93":
         robot = CRS93()
         robot.initialize()
