@@ -3,6 +3,7 @@ import cv2.aruco as aruco
 import numpy as np
 from core.se3 import SE3
 from core.so3 import SO3
+import time
 
 from kinematics import fk, ik, generate_flat_poses, follow_path
 
@@ -159,12 +160,12 @@ def find_homography_in_height(robot, height):
     """
     poses = generate_flat_poses(
         robot=robot,
-        xmax=0.5,
-        xmin=0.4,
-        ymax=0.15,
-        ymin=-0.15,
-        ysteps=4,
-        xsteps=4,
+        xmax=0.55,
+        xmin=0.35,
+        ymax=0.17,
+        ymin=-0.17,
+        ysteps=3,
+        xsteps=3,
         height=height   
     )
 
@@ -173,6 +174,7 @@ def find_homography_in_height(robot, height):
     for q in q_array:
         robot.move_to_q(q)
         robot.wait_for_motion_stop()
+        time.sleep(0.3)
         img = robot.grab_image()
         images.append(img)
         

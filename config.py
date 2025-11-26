@@ -1,7 +1,7 @@
 import numpy as np
 
 config = {
-    "robot_type": "no_robot",
+    "robot_type": "CRS97",
     "task_type": "A",
     "joint_limit_min": np.array([
         -2.94524311, -1.57475473, -2.02043678,

@@ -3,7 +3,7 @@ from core.se3 import SE3
 import numpy as np
 
 R_vertical = SO3([np.pi/2,0,0])
-R_fixed = np.eye(3)
+R_fixed = SO3(np.eye(3))
 
 path_D = [
     SE3(translation=np.array([0.000, 0.085, 0.155]), rotation=R_vertical), #start, hoop is perpendicular to table till y = 35

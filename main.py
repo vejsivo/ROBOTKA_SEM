@@ -7,6 +7,9 @@ from core.so3 import SO3
 import numpy as np
 import time
 from puzzle_paths.puzzle_A import path_A
+from puzzle_paths.puzzle_B import path_B
+from puzzle_paths.puzzle_C import path_C
+from puzzle_paths.puzzle_D import path_D
 from perception import detect_object_location
 
 def initialize_robot():
@@ -14,7 +17,7 @@ def initialize_robot():
 
     if robot_type == "CRS97":
         robot = CRS97()
-        robot.initialize()
+        robot.initialize(home = True)
     elif robot_type == "CRS93":
         robot = CRS93()
         robot.initialize()
@@ -41,19 +44,13 @@ def main():
 
     image = robot.grab_image()
     object_loc = detect_object_location(image=image, H=H) 
-    poses = offset_path(path=path_A, offset=SE3(object_loc))
+    print(object_loc)
+    poses = offset_path(path=path_C, offset = object_loc)
 
-    for pose in poses:
-        print(pose)
-    
     qs = follow_path(robot=robot, path=poses)
     for q in qs:
         robot.move_to_q(q)
 
-
-    
-    
-        
     if conf.get("robot_type") != "no_robot":
         end_robot(robot)
 
