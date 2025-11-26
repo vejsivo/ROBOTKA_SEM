@@ -49,6 +49,16 @@ def calculate_aruco_location(*, corners: np.ndarray) -> SE3:
 
     return pose
 
+def print_matrix_for_config(H):
+    txt = np.array2string(
+        H,
+        separator=", ",
+        precision=8,
+        floatmode="maxprec",
+        max_line_width=200
+    )
+    print(f'    "homo004": np.array({txt}),')
+
 
 def detect_object_center(*, image: np.ndarray) -> np.ndarray | None:
     """detects object center from image"""
