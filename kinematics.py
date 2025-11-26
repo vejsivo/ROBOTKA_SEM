@@ -7,7 +7,7 @@ import heapq
 
 
 #robot end effector to stick transformation, will have to be set according to the robot type but i believe this is the correct transform
-_T_es = SE3(translation=np.array([-0.135, 0.0, 0.0]), rotation=SO3(np.diag([-1, 1, -1])))
+_T_es = SE3(translation=np.array([-0.130, 0.0, 0.0]), rotation=SO3(np.diag([-1, 1, -1])))
 _T_se = _T_es.inverse()    
 
 def fk(*, q: np.ndarray, robot) -> SE3:
@@ -171,6 +171,7 @@ def generate_flat_poses(*, robot, xmax:float, xmin: float, ymax: float, ymin: fl
 def offset_path(*, path: list[SE3], offset: SE3) -> list[SE3]:
     result = []
     for pose in path:
-        result.append(pose * offset)
+        result.append(offset * pose)
+        print(offset)
     
     return result

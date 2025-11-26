@@ -2,11 +2,7 @@ from core.so3 import SO3
 from core.se3 import SE3
 import numpy as np
 
-<<<<<<< HEAD
-R_vertical = SO3([np.pi/2,0,0])
-=======
 R_vertical = SO3.exp(np.array([np.pi/2, 0.0, 0.0]))
->>>>>>> d0ed0bbc2cf9c4fd4d0b30614efbc0ab32f66b55
 R_fixed = SO3(np.eye(3))
 
 path_D = [

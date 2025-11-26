@@ -5,6 +5,7 @@ import numpy as np
 R_fixed = SO3(np.eye(3))
 
 path_C = [
+    SE3(translation=np.array([0.05, -0.05, 0.4]), rotation=R_fixed),
     SE3(translation=np.array([0.05, -0.05, 0.2]), rotation=R_fixed),
     SE3(translation=np.array([0.05, -0.05, 0.197]), rotation=R_fixed),
     SE3(translation=np.array([0.05, -0.05, 0.194]), rotation=R_fixed),
@@ -77,13 +78,8 @@ path_C = [
     SE3(translation=np.array([0, 0, 0.034421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.031421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.028421]), rotation=R_fixed),
-    SE3(translation=np.array([0, 0, 0.025421]), rotation=R_fixed),
-    SE3(translation=np.array([0, 0, 0.022421]), rotation=R_fixed),
-    SE3(translation=np.array([0, 0, 0.02]), rotation=R_fixed),
     
     # go back up
-    SE3(translation=np.array([0, 0, 0.022421]), rotation=R_fixed),
-    SE3(translation=np.array([0, 0, 0.025421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.028421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.031421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.034421]), rotation=R_fixed),
@@ -156,4 +152,5 @@ path_C = [
     SE3(translation=np.array([0.05, -0.05, 0.194]), rotation=R_fixed),
     SE3(translation=np.array([0.05, -0.05, 0.197]), rotation=R_fixed),
     SE3(translation=np.array([0.05, -0.05, 0.2]), rotation=R_fixed),
+    SE3(translation=np.array([0.05, -0.05, 0.4]), rotation=R_fixed),
 ]

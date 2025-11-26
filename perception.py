@@ -94,7 +94,9 @@ def detect_object_location(*, image: np.ndarray, H: np.ndarray) -> SE3 | None:
     # Compose: world ← marker ← object
     object_pose_world = aruco_coords * offset_pose
 
-    return object_pose_world
+    rz180 = SO3(np.diag([-1, -1, 1]))
+    fix = SE3(translation = np.array([0, 0, 0]), rotation=rz180)
+    return object_pose_world # * fix #fix for camera rotation
 
 
 
@@ -174,8 +176,8 @@ def find_homography_in_height(robot, height):
         xmin=0.35,
         ymax=0.17,
         ymin=-0.17,
-        ysteps=3,
-        xsteps=3,
+        ysteps=5,
+        xsteps=5,
         height=height   
     )
 
@@ -184,7 +186,7 @@ def find_homography_in_height(robot, height):
     for q in q_array:
         robot.move_to_q(q)
         robot.wait_for_motion_stop()
-        time.sleep(0.3)
+        time.sleep(1)
         img = robot.grab_image()
         images.append(img)
         

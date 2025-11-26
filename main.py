@@ -10,6 +10,7 @@ from puzzle_paths.puzzle_A import path_A
 from puzzle_paths.puzzle_B import path_B
 from puzzle_paths.puzzle_C import path_C
 from puzzle_paths.puzzle_D import path_D
+from puzzle_paths.puzzle_E import path_E
 from perception import detect_object_location
 
 def initialize_robot():
@@ -17,7 +18,7 @@ def initialize_robot():
 
     if robot_type == "CRS97":
         robot = CRS97()
-        robot.initialize(home = True)
+        robot.initialize(home = False)
     elif robot_type == "CRS93":
         robot = CRS93()
         robot.initialize()
@@ -44,8 +45,9 @@ def main():
 
     image = robot.grab_image()
     object_loc = detect_object_location(image=image, H=H) 
+    print('object')
     print(object_loc)
-    poses = offset_path(path=path_C, offset = object_loc)
+    poses = offset_path(path=path_B, offset = object_loc)
 
     qs = follow_path(robot=robot, path=poses)
     for q in qs:
