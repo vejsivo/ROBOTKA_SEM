@@ -47,7 +47,7 @@ def main():
     object_loc = detect_object_location(image=image, H=H) 
     print('object')
     print(object_loc)
-    poses = offset_path(path=path_B, offset = object_loc)
+    poses = offset_path(path=path_D, offset = object_loc)
 
     qs = follow_path(robot=robot, path=poses)
     for q in qs:

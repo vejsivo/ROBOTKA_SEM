@@ -17,10 +17,11 @@ def fk(*, q: np.ndarray, robot) -> SE3:
     fk = robot_fk * T
     return fk
 
-def q_valid(*, q: np.ndarray) -> bool:
+def q_valid(*, q: np.ndarray, robot) -> bool:
     min = conf["joint_limit_min"]
     max = conf["joint_limit_max"]
-    return np.all((q >= min) & (q <= max))
+    forward = robot.fk(q=q)
+    return np.all((q >= min) & (q <= max)) and forward[2,3] > 0.05
 
 def ik(*, position: SE3, robot) -> list[np.ndarray]:
     '''takes in a desired position of the end effector, return multiple possible solutions for that position 
@@ -36,7 +37,7 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
         ik.extend(sols)
 
     for i in range(len(ik) - 1, -1, -1):
-        if not q_valid(q = ik[i]):
+        if not q_valid(q = ik[i], robot=robot):
             del ik[i]
 
     ik = np.asarray(ik)
