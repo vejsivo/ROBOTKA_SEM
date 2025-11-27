@@ -41,6 +41,10 @@ def ik(*, position: SE3, robot) -> list[np.ndarray]:
             del ik[i]
 
     ik = np.asarray(ik)
+    if len(ik) == 0:
+        print("IK ERROR: no solution for pose:", position)
+        quit()
+
     ref = ik[0]
     dist = np.linalg.norm(ik - ref, axis=1)
     order = np.argsort(dist)
