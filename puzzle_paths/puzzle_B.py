@@ -5,7 +5,7 @@ import numpy as np
 R_fixed = SO3(np.eye(3))
 
 path_B = [
-    SE3(translation=np.array([0, 0.070, 0.2]), rotation=R_fixed),
+    SE3(translation=np.array([0, 0.070, 0.25]), rotation=R_fixed),
     SE3(translation=np.array([0, 0.070, 0.197]), rotation=R_fixed),
     SE3(translation=np.array([0, 0.070, 0.194]), rotation=R_fixed),
     SE3(translation=np.array([0, 0.070, 0.191]), rotation=R_fixed),
@@ -147,5 +147,5 @@ path_B = [
     SE3(translation=np.array([0, 0.070, 0.191]), rotation=R_fixed),
     SE3(translation=np.array([0, 0.070, 0.194]), rotation=R_fixed),
     SE3(translation=np.array([0, 0.070, 0.197]), rotation=R_fixed),
-    SE3(translation=np.array([0, 0.070, 0.2]), rotation=R_fixed),
+    SE3(translation=np.array([0, 0.070, 0.25]), rotation=R_fixed),
 ]

@@ -78,8 +78,14 @@ path_C = [
     SE3(translation=np.array([0, 0, 0.034421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.031421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.028421]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.025]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.022]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.020]), rotation=R_fixed),
     
     # go back up
+    SE3(translation=np.array([0.000, 0.000, 0.020]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.022]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.025]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.028421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.031421]), rotation=R_fixed),
     SE3(translation=np.array([0, 0, 0.034421]), rotation=R_fixed),

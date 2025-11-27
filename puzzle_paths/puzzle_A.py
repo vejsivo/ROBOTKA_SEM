@@ -5,12 +5,12 @@ import numpy as np
 R_fixed = SO3(np.eye(3))
 
 path_A = [
-    SE3(translation=np.array([0.000, 0.000, 0.250]), rotation=R_fixed),
-    SE3(translation=np.array([0.000, 0.000, 0.240]), rotation=R_fixed),
-    SE3(translation=np.array([0.000, 0.000, 0.220]), rotation=R_fixed),
-    SE3(translation=np.array([0.000, 0.000, 0.210]), rotation=R_fixed),
-    SE3(translation=np.array([0.000, 0.000, 0.200]), rotation=R_fixed),
-    SE3(translation=np.array([0.000, 0.000, 0.197]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.250]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.240]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.220]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.210]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.200]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.0, 0.197]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.194]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.191]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.188]), rotation=R_fixed),
@@ -66,8 +66,15 @@ path_A = [
     SE3(translation=np.array([0.000, 0.000, 0.038]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.035]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.032]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.029]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.025]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.020]), rotation=R_fixed),
    
     # go back up
+    SE3(translation=np.array([0.000, 0.000, 0.020]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.025]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.029]), rotation=R_fixed),
+    SE3(translation=np.array([0.000, 0.000, 0.032]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.035]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.038]), rotation=R_fixed),
     SE3(translation=np.array([0.000, 0.000, 0.041]), rotation=R_fixed),
