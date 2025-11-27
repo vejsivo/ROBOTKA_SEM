@@ -47,7 +47,23 @@ def main():
     object_loc = detect_object_location(image=image, H=H) 
     print('object')
     print(object_loc)
-    poses = offset_path(path=path_D, offset = object_loc)
+
+    task = conf.get("task_type")
+    match task:
+        case "A":
+            path = path_A
+        case "B":
+            path = path_B
+        case "C":
+            path = path_C
+        case "D":
+            path = path_D
+        case "E":
+            path = path_E
+        case _:
+            raise ValueError(f"Unknown puzzle type: {task}")
+
+    poses = offset_path(path=path, offset = object_loc)
 
     qs = follow_path(robot=robot, path=poses)
     for q in qs:

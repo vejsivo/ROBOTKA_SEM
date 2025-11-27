@@ -2,7 +2,7 @@ import numpy as np
 
 config = {
     "robot_type": "CRS97",
-    "task_type": "A",
+    "task_type": "D",
     "joint_limit_min": np.array([
         -2.94524311, -1.57475473, -2.02043678,
         -3.19758143, -1.81269896, -3.17736326
