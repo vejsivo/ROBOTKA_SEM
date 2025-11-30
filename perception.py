@@ -81,50 +81,38 @@ def detect_object_location(*, image: np.ndarray, H: np.ndarray) -> SE3 | None:
     else:
         offset = np.zeros(3)
 
-    # Transform marker corners from image → plane coordinates
-    pts = corners[0][0]                        # (4, 2)
+    
+    pts = corners[0][0]                        
     plane_pts = np.array([apply_homography(H, pt) for pt in pts])
 
-    # SE3 pose of ArUco marker in world coordinates
     aruco_coords = calculate_aruco_location(corners=plane_pts)
 
-    # SE3 transform from marker → object
     offset_pose = SE3(translation=offset, rotation=SO3(np.diag([1, 1, 1])))
 
-    # Compose: world ← marker ← object
     object_pose_world = aruco_coords * offset_pose
 
     rz180 = SO3(np.diag([-1, -1, 1]))
     fix = SE3(translation = np.array([0, 0, 0]), rotation=rz180)
-    return object_pose_world # * fix #fix for camera rotation
+    return object_pose_world # 
 
 
 
-
-        
-
-
-
-#from toolbox
-#images array, hoop_positions array of SE3
 def find_hoop_homography(images, hoop_positions) -> np.ndarray:
     """
     Find homography based on images containing the hoop and the hoop positions from array
     """
     
-    images = np.asarray(images) #convert to numpy array (1200, 1920, 3) * N
+    images = np.asarray(images) 
 
     processed_images = images_processing(images, thresh_val=120, blur_ksize=(9,9))
 
     circle = [find_circle(img, min_radius=50, max_radius=200) for img in processed_images] 
     
-    #Fix types
-    #hoop position is type SE3
-    circle_pos = np.array([[c[0], c[1]] for c in circle]) #image points (xc,yc)
-    hoop_pos = np.array([x.translation[:2] for x in hoop_positions]) #hoop positions in plane P (x,y)
+    circle_pos = np.array([[c[0], c[1]] for c in circle])
+    hoop_pos = np.array([x.translation[:2] for x in hoop_positions]) 
     H, mask = cv.findHomography(circle_pos, hoop_pos, method=cv.RANSAC)
 
-    return H #homography
+    return H
 
 
 def images_processing(images,
@@ -139,13 +127,10 @@ def images_processing(images,
     processed_images = []
 
     for i, img in enumerate(images):
-        # Convert to grayscale
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-        # Apply simple binary threshold
         _, th = cv.threshold(gray, thresh_val, 255, cv.THRESH_BINARY)
 
-        # Optionally blur to reduce noise
         blur = cv.GaussianBlur(th, blur_ksize, 2)
         processed_images.append(blur)
 
@@ -156,13 +141,12 @@ def find_circle(image,min_radius, max_radius):
     Find circle in the image using HoughCircles.
     Returns: one circle(x, y, radius) or None if not found
     """
-    # Use HoughCircles to detect circles
+    
     circles = cv.HoughCircles(image, cv.HOUGH_GRADIENT, dp=1, minDist=100,
                                param1=100, param2=30, minRadius=min_radius, maxRadius=max_radius)
     if circles is not None:
         circles = np.uint16(np.around(circles)) 
-        # Return the first detected circle !! 
-        return circles[0][0]  # (x, y, radius)
+        return circles[0][0] 
     else:
         return None
 

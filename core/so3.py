@@ -45,7 +45,7 @@ class SO3:
         """Compute rotation vector from this SO3"""
         R = self.rot
         theta = np.arccos((np.trace(R) - 1) / 2)
-        if abs(theta) < 1e-12:   # handle zero division
+        if abs(theta) < 1e-12: 
             return np.zeros(3)
         v = theta / (2 * np.sin(theta)) * np.array([R[2, 1] - R[1, 2],
                                                    R[0, 2] - R[2, 0],
